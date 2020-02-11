@@ -1,0 +1,98 @@
+version: "2"
+
+services:
+  proxy_pool:
+    build:
+      context: ./proxy_pool-docker
+      dockerfile: Dockerfile
+    volumes:
+      - ./proxy_pool:/root/proxy_pool
+    depends_on:
+      - redis
+    links:
+      - redis
+    expose:
+      - 5010
+  redis:
+    image: redis:4.0.9-alpine
+    volumes:
+      - ./redis-data:/data
+    command: redis-server --appendonly yes
+    expose:
+      - 6379
+  splash1:
+    image: scrapinghub/splash
+    restart: always
+    mem_limit: 4500M
+    command: --disable-private-mode --max-timeout 3600 --port=8050 --maxrss 40000
+    expose:
+      - 8050
+  splash2:
+    image: scrapinghub/splash
+    restart: always
+    mem_limit: 4500M
+    command: --disable-private-mode --max-timeout 3600 --port=8050 --maxrss 40000
+    expose:
+      - 8050
+  splash3:
+    image: scrapinghub/splash
+    restart: always
+    mem_limit: 4500M
+    command: --disable-private-mode --max-timeout 3600 --maxrss 4000
+    expose:
+      - 8050
+  splash4:
+    image: scrapinghub/splash
+    restart: always
+    mem_limit: 4500M
+    command: --disable-private-mode --max-timeout 3600 --maxrss 4000
+    expose:
+      - 8050
+  splash5:
+    image: scrapinghub/splash
+    restart: always
+    mem_limit: 4500M
+    command: --disable-private-mode --max-timeout 3600 --maxrss 4000
+    expose:
+      - 8050
+  splash6:
+    image: scrapinghub/splash
+    restart: always
+    mem_limit: 4500M
+    command: --disable-private-mode --max-timeout 3600 --maxrss 4000
+    expose:
+      - 8050
+  nginx:
+    image: nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    expose:
+      - 8080
+    depends_on:
+      - splash4
+      - splash3
+      - splash2
+      - splash1
+      - splash5
+      - splash6
+    links:
+      - splash1
+      - splash2
+      - splash3
+      - splash4
+      - splash6
+      - splash5
+  scrapy:
+    build:
+      context: ./scrapy-docker
+      dockerfile: Dockerfile
+    volumes:
+      - ./data:/root/data
+      - ./ctrip:/root/ctrip
+    depends_on:
+      - nginx
+      - proxy_pool
+    links:
+      - proxy_pool
+      - nginx
+

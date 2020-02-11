@@ -1,0 +1,5 @@
+aiohttp==3.5.4
+Flask==1.0.2
+redis==3.2.1
+requests==2.21.0
+pyquery==1.4.0
